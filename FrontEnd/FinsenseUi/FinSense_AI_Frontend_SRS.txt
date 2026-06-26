@@ -1,0 +1,1667 @@
+===============================================================
+  FINSENSE AI -- FRONTEND SRS (Software Requirements Specification)
+  Version: 1.0
+  Project: FinSense AI -- Personal Finance Advisor
+  Developer: Sadik (Solo)
+  Stack: React 18 + TypeScript + Zustand + React Query + Zod +
+         React Hook Form + Recharts + Axios + SignalR
+  Type Definition: Manual definition from backend DTOs
+  Pattern: Feature-based folder structure
+===============================================================
+
+
+================================================================
+  SECTION 1 -- TECH STACK OVERVIEW
+================================================================
+
+  Core Framework  : React 18
+  Language        : TypeScript 5+
+  Build Tool      : Vite (faster than CRA, better DX)
+  Styling         : Tailwind CSS
+  Routing         : React Router v6
+  Server State    : React Query (TanStack Query v5)
+  Client State    : Zustand
+  Form Handling   : React Hook Form
+  Validation      : Zod
+  HTTP Client     : Axios
+  Charts          : Recharts
+  Real-time       : @microsoft/signalr
+  Type Definition : Manual definition from backend DTOs
+  Linting         : ESLint + Prettier
+
+
+================================================================
+  SECTION 2 -- PROJECT STRUCTURE
+================================================================
+
+  finsense-frontend/
+  +-- public/
+  |   +-- favicon.ico
+  |   +-- logo.svg
+  |
+  +-- src/
+  |   +-- features/
+  |   |   +-- auth/
+  |   |   |   +-- components/
+  |   |   |   |   +-- LoginForm.tsx
+  |   |   |   |   +-- RegisterForm.tsx
+  |   |   |   +-- hooks/
+  |   |   |   |   +-- useLogin.ts
+  |   |   |   |   +-- useRegister.ts
+  |   |   |   +-- schemas/
+  |   |   |   |   +-- auth.schema.ts
+  |   |   |   +-- pages/
+  |   |   |   |   +-- LoginPage.tsx
+  |   |   |   |   +-- RegisterPage.tsx
+  |   |   |   +-- api/
+  |   |   |       +-- auth.api.ts
+  |   |   |
+  |   |   +-- upload/
+  |   |   |   +-- components/
+  |   |   |   |   +-- CsvDropzone.tsx
+  |   |   |   |   +-- UploadProgress.tsx
+  |   |   |   |   +-- UploadHistory.tsx
+  |   |   |   +-- hooks/
+  |   |   |   |   +-- useUpload.ts
+  |   |   |   +-- pages/
+  |   |   |   |   +-- UploadPage.tsx
+  |   |   |   +-- api/
+  |   |   |       +-- upload.api.ts
+  |   |   |
+  |   |   +-- analytics/
+  |   |   |   +-- components/
+  |   |   |   |   +-- SpendingPieChart.tsx
+  |   |   |   |   +-- SpendingBarChart.tsx
+  |   |   |   |   +-- CategoryCard.tsx
+  |   |   |   |   +-- SummaryCards.tsx
+  |   |   |   +-- hooks/
+  |   |   |   |   +-- useAnalytics.ts
+  |   |   |   +-- pages/
+  |   |   |   |   +-- DashboardPage.tsx
+  |   |   |   +-- api/
+  |   |   |       +-- analytics.api.ts
+  |   |   |
+  |   |   +-- emi/
+  |   |   |   +-- components/
+  |   |   |   |   +-- EMIForm.tsx
+  |   |   |   |   +-- EMIResult.tsx
+  |   |   |   |   +-- EMIStatusBadge.tsx
+  |   |   |   +-- hooks/
+  |   |   |   |   +-- useEMICheck.ts
+  |   |   |   +-- schemas/
+  |   |   |   |   +-- emi.schema.ts
+  |   |   |   +-- pages/
+  |   |   |   |   +-- EMIPage.tsx
+  |   |   |   +-- api/
+  |   |   |       +-- emi.api.ts
+  |   |   |
+  |   |   +-- predictor/
+  |   |   |   +-- components/
+  |   |   |   |   +-- PredictorResult.tsx
+  |   |   |   |   +-- BalanceGauge.tsx
+  |   |   |   |   +-- AICommentary.tsx
+  |   |   |   +-- hooks/
+  |   |   |   |   +-- usePredictor.ts
+  |   |   |   +-- pages/
+  |   |   |   |   +-- PredictorPage.tsx
+  |   |   |   +-- api/
+  |   |   |       +-- predictor.api.ts
+  |   |   |
+  |   |   +-- goals/
+  |   |   |   +-- components/
+  |   |   |   |   +-- GoalForm.tsx
+  |   |   |   |   +-- GoalCard.tsx
+  |   |   |   |   +-- GoalList.tsx
+  |   |   |   |   +-- GoalStatusBadge.tsx
+  |   |   |   +-- hooks/
+  |   |   |   |   +-- useGoals.ts
+  |   |   |   |   +-- useCreateGoal.ts
+  |   |   |   +-- schemas/
+  |   |   |   |   +-- goal.schema.ts
+  |   |   |   +-- pages/
+  |   |   |   |   +-- GoalsPage.tsx
+  |   |   |   +-- api/
+  |   |   |       +-- goals.api.ts
+  |   |   |
+  |   |   +-- chat/
+  |   |       +-- components/
+  |   |       |   +-- ChatWindow.tsx
+  |   |       |   +-- ChatMessage.tsx
+  |   |       |   +-- ChatInput.tsx
+  |   |       |   +-- GuestLimitBanner.tsx
+  |   |       +-- hooks/
+  |   |       |   +-- useChat.ts
+  |   |       |   +-- useSignalR.ts
+  |   |       +-- pages/
+  |   |           +-- ChatPage.tsx
+  |   |
+  |   +-- components/
+  |   |   +-- layout/
+  |   |   |   +-- AppLayout.tsx
+  |   |   |   +-- Navbar.tsx
+  |   |   |   +-- Sidebar.tsx
+  |   |   |   +-- GuestBanner.tsx
+  |   |   +-- ui/
+  |   |       +-- Button.tsx
+  |   |       +-- Input.tsx
+  |   |       +-- Card.tsx
+  |   |       +-- Badge.tsx
+  |   |       +-- Spinner.tsx
+  |   |       +-- ErrorMessage.tsx
+  |   |       +-- Modal.tsx
+  |   |
+  |   +-- types/
+  |   |   +-- common.types.ts      <- ApiResponse wrapper + shared types
+  |   |   +-- auth.types.ts        <- manual typescript interfaces for auth
+  |   |   +-- upload.types.ts
+  |   |   +-- analytics.types.ts
+  |   |   +-- emi.types.ts
+  |   |   +-- predictor.types.ts
+  |   |   +-- goal.types.ts
+  |   |   +-- chat.types.ts
+  |   |
+  |   +-- store/
+  |   |   +-- auth.store.ts        <- Zustand: user + token
+  |   |   +-- session.store.ts     <- Zustand: current sessionId
+  |   |
+  |   +-- lib/
+  |   |   +-- axios.ts             <- Axios instance + interceptors
+  |   |   +-- signalr.ts           <- SignalR connection factory
+  |   |   +-- queryClient.ts       <- React Query client config
+  |   |
+  |   +-- hooks/
+  |   |   +-- useAuth.ts           <- read auth store
+  |   |   +-- useSession.ts        <- read session store
+  |   |
+  |   +-- router/
+  |   |   +-- index.tsx            <- all routes defined here
+  |   |   +-- ProtectedRoute.tsx   <- redirect to login if no token
+  |   |   +-- GuestRoute.tsx       <- redirect if already logged in
+  |   |
+  |   +-- utils/
+  |   |   +-- currency.ts          <- format rupee amounts
+  |   |   +-- date.ts              <- format dates
+  |   |   +-- cn.ts                <- Tailwind class merging util
+  |   |
+  |   +-- App.tsx
+  |   +-- main.tsx
+  |   +-- vite-env.d.ts
+  |
+  +-- .env
+  +-- .env.production
+  +-- .eslintrc.json
+  +-- .prettierrc
+  +-- index.html
+  +-- package.json
+  +-- tsconfig.json
+  +-- vite.config.ts
+  +-- tailwind.config.ts
+
+
+===============================================================================================================================
+  SECTION 3 -- TYPE DEFINITION WORKFLOW (MANUAL WORKFLOW)
+================================================================
+
+----------------------------------------------------------------
+3.1 HOW IT WORKS
+----------------------------------------------------------------
+
+  Instead of generating types automatically from Swagger, we write
+  and maintain all frontend TypeScript interfaces manually. This gives 
+  us full control over type definition formats, comments, optionality, 
+  and custom types.
+
+  Flow:
+    Developer designs/changes C# DTO classes in the backend
+    -> Developer manually reads C# DTO file(s)
+    -> Developer creates/updates the corresponding TypeScript interface(s)
+       under src/types/ (e.g. auth.types.ts, emi.types.ts, etc.)
+    -> Full type-safety is maintained across components, hooks, and api services.
+
+----------------------------------------------------------------
+3.2 C# TO TYPESCRIPT TYPE MAPPING REFERENCE
+----------------------------------------------------------------
+
+  Use the following mapping guidelines when converting C# DTO types
+  to TypeScript manually:
+
+    C# Type                  | TypeScript Type
+    -------------------------|------------------
+    string                   | string
+    int / long / float       | number
+    double / decimal         | number
+    bool                     | boolean
+    DateTime                 | string (ISO date string format)
+    List<T> / T[]            | T[]
+    Dictionary<TKey, TValue> | Record<TKey, TValue>
+    Nullable<T> / T?         | T | null
+
+----------------------------------------------------------------
+3.3 EXAMPLE MAPPING
+----------------------------------------------------------------
+
+  Backend C# DTO (e.g. RegisterRequestDto.cs):
+    public class RegisterRequestDto
+    {
+        public string FullName { get; set; }
+        public string Email { get; set; }
+        public string Password { get; set; }
+    }
+
+  Frontend TypeScript counterpart (in src/types/auth.types.ts):
+    export interface RegisterRequest {
+      fullName: string
+      email: string
+      password: string
+    }
+
+----------------------------------------------------------------
+3.4 COMMON WRAPPER INTERFACE
+----------------------------------------------------------------
+
+  The backend sends responses wrapped in an ApiResponse structure.
+  We define this manually in src/types/common.types.ts:
+
+    export interface ApiResponse<T> {
+      success: boolean
+      message: string
+      data: T
+      error: string | null
+      statusCode: number
+    }
+
+
+================================================================
+  SECTION 4 -- ALL TYPES (COMPLETE)
+================================================================
+
+----------------------------------------------------------------
+  src/types/common.types.ts
+----------------------------------------------------------------
+
+  export interface ApiResponse<T> {
+    success: boolean
+    message: string
+    data: T
+    error: string | null
+    statusCode: number
+  }
+
+  export type Status = 'Safe' | 'Risky' | 'Danger'
+  export type GoalStatus = 'On Track' | 'At Risk' | 'Not Feasible'
+  export type TransactionType = 'Debit' | 'Credit'
+  export type ChatRole = 'user' | 'assistant'
+
+  export type Category =
+    | 'Food'
+    | 'Transport'
+    | 'EMI'
+    | 'Entertainment'
+    | 'Utilities'
+    | 'Shopping'
+    | 'Health'
+    | 'Education'
+    | 'Salary'
+    | 'Refund'
+    | 'Others'
+
+----------------------------------------------------------------
+  src/types/auth.types.ts
+----------------------------------------------------------------
+
+  export interface RegisterRequest {
+    fullName: string
+    email: string
+    password: string
+  }
+
+  export interface LoginRequest {
+    email: string
+    password: string
+  }
+
+  export interface AuthResponse {
+    token: string
+    fullName: string
+    email: string
+    expiresAt: string
+  }
+
+  // Zustand store shape (not a DTO -- manual)
+  export interface AuthState {
+    user: AuthUser | null
+    token: string | null
+    isAuthenticated: boolean
+  }
+
+  export interface AuthUser {
+    fullName: string
+    email: string
+    expiresAt: string
+  }
+
+----------------------------------------------------------------
+  src/types/upload.types.ts
+----------------------------------------------------------------
+
+  import type { Category, TransactionType } from './common.types'
+  import type { SpendingSummary } from './analytics.types'
+
+  export interface UploadResponse {
+    sessionId: string
+    isGuest: boolean
+    summary: SpendingSummary
+  }
+
+  export interface TransactionDto {
+    id: number
+    date: string
+    description: string
+    amount: number
+    type: string
+    category: string
+  }
+
+  // Typed version with strict category and type
+  export interface Transaction {
+    id: number
+    date: string
+    description: string
+    amount: number
+    type: TransactionType
+    category: Category
+  }
+
+  export interface UploadHistoryItem {
+    sessionId: string
+    fileName: string
+    uploadedAt: string
+    transactionCount: number
+  }
+
+----------------------------------------------------------------
+  src/types/analytics.types.ts
+----------------------------------------------------------------
+
+  import type { Category } from './common.types'
+  import type { Transaction } from './upload.types'
+
+  export interface CategoryBreakdown {
+    category: string
+    amount: number
+    percentage: number
+  }
+
+  export interface SpendingSummary {
+    totalIncome: number
+    totalSpending: number
+    netSavings: number
+    totalRefunds: number
+    byCategory: CategoryBreakdown[]
+    topTransactions: Transaction[]
+  }
+
+  // Typed breakdown with strict category
+  export interface CategoryBreakdownTyped {
+    category: Category
+    amount: number
+    percentage: number
+  }
+
+  export interface SpendingSummaryTyped {
+    totalIncome: number
+    totalSpending: number
+    netSavings: number
+    totalRefunds: number
+    byCategory: CategoryBreakdownTyped[]
+    topTransactions: Transaction[]
+  }
+
+----------------------------------------------------------------
+  src/types/emi.types.ts
+----------------------------------------------------------------
+
+  import type { Status } from './common.types'
+
+  export interface EMIRequest {
+    salary: number
+    monthlyExpenses: number
+    loanAmount: number
+    tenureMonths: number
+    interestRatePerAnnum: number
+    sessionId?: string
+  }
+
+  export interface EMIResponse {
+    emiAmount: number
+    status: string
+    reason: string
+    recommendation: string
+    safeEMILimit: number
+    disposableIncome: number
+    emiAsPercentOfSalary: number
+  }
+
+  // Narrowed status type
+  export interface EMIResponseTyped extends Omit<EMIResponse, 'status'> {
+    status: Status
+  }
+
+----------------------------------------------------------------
+  src/types/predictor.types.ts
+----------------------------------------------------------------
+
+  import type { Status } from './common.types'
+
+  export interface PredictorRequest {
+    sessionId: string
+    targetSavingsGoal?: number
+  }
+
+  export interface PredictorResponse {
+    predictedMonthEndBalance: number
+    predictedSavings: number
+    status: string
+    aiCommentary: string
+    riskFactors: string[]
+  }
+
+  export interface PredictorResponseTyped
+    extends Omit<PredictorResponse, 'status'> {
+    status: Status
+  }
+
+----------------------------------------------------------------
+  src/types/goal.types.ts
+----------------------------------------------------------------
+
+  import type { GoalStatus } from './common.types'
+
+  export interface GoalRequest {
+    goalName: string
+    targetAmount: number
+    targetDate: string
+    currentSavings: number
+  }
+
+  export interface GoalResponse {
+    id: number
+    goalName: string
+    targetAmount: number
+    currentSavings: number
+    targetDate: string
+    status: string
+    createdAt: string
+  }
+
+  export interface GoalItem {
+    id: number
+    goalName: string
+    targetAmount: number
+    currentSavings: number
+    targetDate: string
+    status: GoalStatus
+    createdAt: string
+  }
+
+  export interface GoalResponseTyped extends Omit<GoalResponse, 'status'> {
+    status: GoalStatus
+  }
+
+----------------------------------------------------------------
+  src/types/chat.types.ts
+----------------------------------------------------------------
+
+  import type { ChatRole } from './common.types'
+
+  export interface ChatRequest {
+    sessionId: string
+    message: string
+    history: ChatHistoryItem[]
+    guestMessageCount: number
+  }
+
+  export interface ChatResponse {
+    responseChunk: string
+    isComplete: boolean
+    guestMessageCount: number
+  }
+
+  export interface ChatHistoryItem {
+    role: ChatRole
+    content: string
+  }
+
+  export interface ChatMessage {
+    id: string           // local UUID for React key
+    role: ChatRole
+    content: string
+    timestamp: Date
+    isStreaming?: boolean
+  }
+
+  export interface ChatState {
+    messages: ChatMessage[]
+    isStreaming: boolean
+    guestMessageCount: number
+    messagesRemaining: number
+    limitReached: boolean
+  }
+
+
+================================================================
+  SECTION 5 -- ZOD SCHEMAS (FORM VALIDATION)
+================================================================
+
+  Zod schemas are for USER INPUT only (what goes into forms).
+  API responses use TypeScript interfaces from generated types.
+  Never use Zod to validate API responses -- trust your backend.
+
+----------------------------------------------------------------
+  src/features/auth/schemas/auth.schema.ts
+----------------------------------------------------------------
+
+  import { z } from 'zod'
+
+  export const RegisterSchema = z.object({
+    fullName: z
+      .string()
+      .min(1, 'Full name is required')
+      .max(100, 'Full name too long'),
+    email: z
+      .string()
+      .min(1, 'Email is required')
+      .email('Invalid email format'),
+    password: z
+      .string()
+      .min(8, 'Password must be at least 8 characters')
+      .regex(/[A-Z]/, 'Password must contain an uppercase letter')
+      .regex(/[0-9]/, 'Password must contain a number')
+  })
+
+  export const LoginSchema = z.object({
+    email: z.string().min(1, 'Email is required').email('Invalid email'),
+    password: z.string().min(1, 'Password is required')
+  })
+
+  export type RegisterFormData = z.infer<typeof RegisterSchema>
+  export type LoginFormData    = z.infer<typeof LoginSchema>
+
+----------------------------------------------------------------
+  src/features/emi/schemas/emi.schema.ts
+----------------------------------------------------------------
+
+  import { z } from 'zod'
+
+  export const EMISchema = z.object({
+    salary: z
+      .number({ invalid_type_error: 'Salary must be a number' })
+      .positive('Salary must be greater than 0'),
+    monthlyExpenses: z
+      .number({ invalid_type_error: 'Enter a valid amount' })
+      .min(0, 'Expenses cannot be negative'),
+    loanAmount: z
+      .number({ invalid_type_error: 'Loan amount must be a number' })
+      .positive('Loan amount must be greater than 0'),
+    tenureMonths: z
+      .number({ invalid_type_error: 'Tenure must be a number' })
+      .min(1, 'Minimum 1 month')
+      .max(360, 'Maximum 360 months'),
+    interestRatePerAnnum: z
+      .number({ invalid_type_error: 'Enter a valid rate' })
+      .min(1, 'Minimum 1%')
+      .max(50, 'Maximum 50%')
+  })
+
+  export type EMIFormData = z.infer<typeof EMISchema>
+
+----------------------------------------------------------------
+  src/features/goals/schemas/goal.schema.ts
+----------------------------------------------------------------
+
+  import { z } from 'zod'
+
+  export const GoalSchema = z.object({
+    goalName: z
+      .string()
+      .min(1, 'Goal name is required')
+      .max(100, 'Goal name too long'),
+    targetAmount: z
+      .number({ invalid_type_error: 'Enter a valid amount' })
+      .positive('Target amount must be greater than 0'),
+    targetDate: z
+      .string()
+      .min(1, 'Target date is required')
+      .refine(val => new Date(val) > new Date(), {
+        message: 'Target date must be in the future'
+      }),
+    currentSavings: z
+      .number({ invalid_type_error: 'Enter a valid amount' })
+      .min(0, 'Current savings cannot be negative')
+  })
+
+  export type GoalFormData = z.infer<typeof GoalSchema>
+
+
+================================================================
+  SECTION 6 -- ZUSTAND STORES
+================================================================
+
+  Only two stores. Everything else is server state (React Query).
+  Keep Zustand stores minimal -- they are for client-only state
+  that must persist across components without server involvement.
+
+----------------------------------------------------------------
+  src/store/auth.store.ts
+----------------------------------------------------------------
+
+  import { create } from 'zustand'
+  import { persist } from 'zustand/middleware'
+  import type { AuthUser } from '../types/auth.types'
+
+  interface AuthStore {
+    user: AuthUser | null
+    token: string | null
+    isAuthenticated: boolean
+    setAuth: (user: AuthUser, token: string) => void
+    clearAuth: () => void
+  }
+
+  export const useAuthStore = create<AuthStore>()(
+    persist(
+      (set) => ({
+        user: null,
+        token: null,
+        isAuthenticated: false,
+
+        setAuth: (user, token) =>
+          set({ user, token, isAuthenticated: true }),
+
+        clearAuth: () =>
+          set({ user: null, token: null, isAuthenticated: false })
+      }),
+      {
+        name: 'finsense-auth'   // persists to localStorage
+      }
+    )
+  )
+
+  NOTE: persist middleware saves token to localStorage automatically.
+  On page refresh the user stays logged in.
+
+----------------------------------------------------------------
+  src/store/session.store.ts
+----------------------------------------------------------------
+
+  import { create } from 'zustand'
+  import { persist } from 'zustand/middleware'
+
+  interface SessionStore {
+    sessionId: string | null
+    isGuest: boolean
+    guestMessageCount: number
+    setSession: (sessionId: string, isGuest: boolean) => void
+    clearSession: () => void
+    incrementGuestMessageCount: () => void
+  }
+
+  export const useSessionStore = create<SessionStore>()(
+    persist(
+      (set) => ({
+        sessionId: null,
+        isGuest: true,
+        guestMessageCount: 0,
+
+        setSession: (sessionId, isGuest) =>
+          set({ sessionId, isGuest }),
+
+        clearSession: () =>
+          set({ sessionId: null, isGuest: true, guestMessageCount: 0 }),
+
+        incrementGuestMessageCount: () =>
+          set(state => ({
+            guestMessageCount: state.guestMessageCount + 1
+          }))
+      }),
+      {
+        name: 'finsense-session'
+      }
+    )
+  )
+
+
+================================================================
+  SECTION 7 -- AXIOS SETUP
+================================================================
+
+----------------------------------------------------------------
+  src/lib/axios.ts
+----------------------------------------------------------------
+
+  import axios from 'axios'
+  import { useAuthStore } from '../store/auth.store'
+
+  const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:5000/api/v1'
+
+  export const api = axios.create({
+    baseURL: BASE_URL,
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    timeout: 30000   // 30 seconds (Claude API can be slow)
+  })
+
+  // Request interceptor -- attach JWT token automatically
+  api.interceptors.request.use(
+    (config) => {
+      const token = useAuthStore.getState().token
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`
+      }
+      return config
+    },
+    (error) => Promise.reject(error)
+  )
+
+  // Response interceptor -- handle 401 globally
+  api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (error.response?.status === 401) {
+        useAuthStore.getState().clearAuth()
+        window.location.href = '/login'
+      }
+      return Promise.reject(error)
+    }
+  )
+
+  // Helper -- extract data from ApiResponse wrapper
+  export function extractData<T>(response: { data: ApiResponse<T> }): T {
+    if (!response.data.success) {
+      throw new Error(response.data.error ?? 'Something went wrong')
+    }
+    return response.data.data
+  }
+
+
+================================================================
+  SECTION 8 -- REACT QUERY SETUP
+================================================================
+
+----------------------------------------------------------------
+  src/lib/queryClient.ts
+----------------------------------------------------------------
+
+  import { QueryClient } from '@tanstack/react-query'
+
+  export const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 5 * 60 * 1000,      // 5 minutes -- spending data doesnt change often
+        gcTime: 10 * 60 * 1000,         // 10 minutes cache
+        retry: 1,                        // retry once on failure
+        refetchOnWindowFocus: false      // dont refetch when tab regains focus
+      },
+      mutations: {
+        retry: 0                         // never retry mutations
+      }
+    }
+  })
+
+  QUERY KEYS CONVENTION -- define as constants to avoid typos:
+
+  export const QueryKeys = {
+    analytics: (sessionId: string) => ['analytics', sessionId] as const,
+    goals: (userId: string)        => ['goals', userId] as const,
+    uploadHistory: ()              => ['upload-history'] as const,
+    predictor: (sessionId: string) => ['predictor', sessionId] as const,
+    chatHistory: (sessionId: string) => ['chat', sessionId] as const
+  }
+
+
+================================================================
+  SECTION 9 -- API FUNCTIONS (per feature)
+================================================================
+
+  Each feature has its own api file.
+  These are plain async functions -- React Query hooks call them.
+  They use the Axios instance and return typed data.
+
+----------------------------------------------------------------
+  src/features/auth/api/auth.api.ts
+----------------------------------------------------------------
+
+  import { api, extractData } from '../../../lib/axios'
+  import type { ApiResponse } from '../../../types/common.types'
+  import type {
+    RegisterRequest,
+    LoginRequest,
+    AuthResponse
+  } from '../../../types/auth.types'
+
+  export const authApi = {
+    register: async (data: RegisterRequest): Promise<AuthResponse> => {
+      const res = await api.post<ApiResponse<AuthResponse>>(
+        '/auth/register', data
+      )
+      return extractData(res)
+    },
+
+    login: async (data: LoginRequest): Promise<AuthResponse> => {
+      const res = await api.post<ApiResponse<AuthResponse>>(
+        '/auth/login', data
+      )
+      return extractData(res)
+    }
+  }
+
+----------------------------------------------------------------
+  src/features/upload/api/upload.api.ts
+----------------------------------------------------------------
+
+  import { api, extractData } from '../../../lib/axios'
+  import type { ApiResponse } from '../../../types/common.types'
+  import type { UploadResponse, UploadHistoryItem } from '../../../types/upload.types'
+
+  export const uploadApi = {
+    uploadCsv: async (file: File): Promise<UploadResponse> => {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const res = await api.post<ApiResponse<UploadResponse>>(
+        '/upload',
+        formData,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        }
+      )
+      return extractData(res)
+    },
+
+    getUploadHistory: async (): Promise<UploadHistoryItem[]> => {
+      const res = await api.get<ApiResponse<UploadHistoryItem[]>>(
+        '/upload/history'
+      )
+      return extractData(res)
+    }
+  }
+
+----------------------------------------------------------------
+  src/features/analytics/api/analytics.api.ts
+----------------------------------------------------------------
+
+  import { api, extractData } from '../../../lib/axios'
+  import type { ApiResponse } from '../../../types/common.types'
+  import type { SpendingSummaryTyped } from '../../../types/analytics.types'
+
+  export const analyticsApi = {
+    getSummary: async (sessionId: string): Promise<SpendingSummaryTyped> => {
+      const res = await api.get<ApiResponse<SpendingSummaryTyped>>(
+        `/analytics/${sessionId}`
+      )
+      return extractData(res)
+    }
+  }
+
+----------------------------------------------------------------
+  src/features/emi/api/emi.api.ts
+----------------------------------------------------------------
+
+  import { api, extractData } from '../../../lib/axios'
+  import type { ApiResponse } from '../../../types/common.types'
+  import type { EMIRequest, EMIResponseTyped } from '../../../types/emi.types'
+
+  export const emiApi = {
+    checkAffordability: async (data: EMIRequest): Promise<EMIResponseTyped> => {
+      const res = await api.post<ApiResponse<EMIResponseTyped>>(
+        '/emi/check', data
+      )
+      return extractData(res)
+    }
+  }
+
+----------------------------------------------------------------
+  src/features/predictor/api/predictor.api.ts
+----------------------------------------------------------------
+
+  import { api, extractData } from '../../../lib/axios'
+  import type { ApiResponse } from '../../../types/common.types'
+  import type {
+    PredictorRequest,
+    PredictorResponseTyped
+  } from '../../../types/predictor.types'
+
+  export const predictorApi = {
+    predictMonthEnd: async (
+      data: PredictorRequest
+    ): Promise<PredictorResponseTyped> => {
+      const res = await api.post<ApiResponse<PredictorResponseTyped>>(
+        '/predictor/month-end', data
+      )
+      return extractData(res)
+    }
+  }
+
+----------------------------------------------------------------
+  src/features/goals/api/goals.api.ts
+----------------------------------------------------------------
+
+  import { api, extractData } from '../../../lib/axios'
+  import type { ApiResponse } from '../../../types/common.types'
+  import type {
+    GoalRequest,
+    GoalResponseTyped,
+    GoalItem
+  } from '../../../types/goal.types'
+
+  export const goalsApi = {
+    createGoal: async (data: GoalRequest): Promise<GoalResponseTyped> => {
+      const res = await api.post<ApiResponse<GoalResponseTyped>>(
+        '/goals', data
+      )
+      return extractData(res)
+    },
+
+    getGoals: async (): Promise<GoalItem[]> => {
+      const res = await api.get<ApiResponse<GoalItem[]>>('/goals')
+      return extractData(res)
+    },
+
+    deleteGoal: async (id: number): Promise<void> => {
+      await api.delete(`/goals/${id}`)
+    }
+  }
+
+
+================================================================
+  SECTION 10 -- REACT QUERY HOOKS (per feature)
+================================================================
+
+  Custom hooks wrap React Query.
+  Components only call hooks -- never call API functions directly.
+  This keeps components clean and makes testing easy.
+
+----------------------------------------------------------------
+  src/features/auth/hooks/useLogin.ts
+----------------------------------------------------------------
+
+  import { useMutation } from '@tanstack/react-query'
+  import { useNavigate } from 'react-router-dom'
+  import { authApi } from '../api/auth.api'
+  import { useAuthStore } from '../../../store/auth.store'
+  import type { LoginFormData } from '../schemas/auth.schema'
+
+  export function useLogin() {
+    const navigate = useNavigate()
+    const setAuth = useAuthStore(state => state.setAuth)
+
+    return useMutation({
+      mutationFn: (data: LoginFormData) => authApi.login(data),
+
+      onSuccess: (response) => {
+        setAuth(
+          {
+            fullName: response.fullName,
+            email: response.email,
+            expiresAt: response.expiresAt
+          },
+          response.token
+        )
+        navigate('/dashboard')
+      },
+
+      onError: (error: Error) => {
+        // error.message comes from extractData throwing
+        console.error('Login failed:', error.message)
+      }
+    })
+  }
+
+----------------------------------------------------------------
+  src/features/upload/hooks/useUpload.ts
+----------------------------------------------------------------
+
+  import { useMutation } from '@tanstack/react-query'
+  import { useNavigate } from 'react-router-dom'
+  import { uploadApi } from '../api/upload.api'
+  import { useSessionStore } from '../../../store/session.store'
+  import { queryClient } from '../../../lib/queryClient'
+
+  export function useUpload() {
+    const navigate = useNavigate()
+    const setSession = useSessionStore(state => state.setSession)
+
+    return useMutation({
+      mutationFn: (file: File) => uploadApi.uploadCsv(file),
+
+      onSuccess: (response) => {
+        // Save session ID to Zustand store
+        setSession(response.sessionId, response.isGuest)
+
+        // Pre-populate the analytics cache with data from upload response
+        // so Dashboard loads instantly without a second API call
+        queryClient.setQueryData(
+          ['analytics', response.sessionId],
+          response.summary
+        )
+
+        navigate('/dashboard')
+      }
+    })
+  }
+
+----------------------------------------------------------------
+  src/features/analytics/hooks/useAnalytics.ts
+----------------------------------------------------------------
+
+  import { useQuery } from '@tanstack/react-query'
+  import { analyticsApi } from '../api/analytics.api'
+  import { useSessionStore } from '../../../store/session.store'
+  import { QueryKeys } from '../../../lib/queryClient'
+
+  export function useAnalytics() {
+    const sessionId = useSessionStore(state => state.sessionId)
+
+    return useQuery({
+      queryKey: QueryKeys.analytics(sessionId ?? ''),
+      queryFn: () => analyticsApi.getSummary(sessionId!),
+      enabled: !!sessionId,    // only run if we have a sessionId
+      staleTime: 10 * 60 * 1000  // spending data is fresh for 10 mins
+    })
+  }
+
+----------------------------------------------------------------
+  src/features/emi/hooks/useEMICheck.ts
+----------------------------------------------------------------
+
+  import { useMutation } from '@tanstack/react-query'
+  import { emiApi } from '../api/emi.api'
+  import type { EMIFormData } from '../schemas/emi.schema'
+  import { useSessionStore } from '../../../store/session.store'
+
+  export function useEMICheck() {
+    const sessionId = useSessionStore(state => state.sessionId)
+
+    return useMutation({
+      mutationFn: (data: EMIFormData) =>
+        emiApi.checkAffordability({
+          ...data,
+          sessionId: sessionId ?? undefined
+        })
+    })
+  }
+
+----------------------------------------------------------------
+  src/features/goals/hooks/useGoals.ts
+----------------------------------------------------------------
+
+  import { useQuery, useMutation } from '@tanstack/react-query'
+  import { goalsApi } from '../api/goals.api'
+  import { queryClient, QueryKeys } from '../../../lib/queryClient'
+  import { useAuthStore } from '../../../store/auth.store'
+
+  export function useGoals() {
+    const user = useAuthStore(state => state.user)
+
+    return useQuery({
+      queryKey: QueryKeys.goals(user?.email ?? ''),
+      queryFn: goalsApi.getGoals,
+      enabled: !!user
+    })
+  }
+
+  export function useDeleteGoal() {
+    const user = useAuthStore(state => state.user)
+
+    return useMutation({
+      mutationFn: (id: number) => goalsApi.deleteGoal(id),
+      onSuccess: () => {
+        // Invalidate goals cache so list refreshes automatically
+        queryClient.invalidateQueries({
+          queryKey: QueryKeys.goals(user?.email ?? '')
+        })
+      }
+    })
+  }
+
+
+================================================================
+  SECTION 11 -- SIGNALR SETUP (CHAT STREAMING)
+================================================================
+
+----------------------------------------------------------------
+  src/lib/signalr.ts
+----------------------------------------------------------------
+
+  import * as signalR from '@microsoft/signalr'
+  import { useAuthStore } from '../store/auth.store'
+
+  const HUB_URL = import.meta.env.VITE_HUB_URL ?? 'http://localhost:5000/hubs/chat'
+
+  let connection: signalR.HubConnection | null = null
+
+  export function getSignalRConnection(): signalR.HubConnection {
+    if (connection) return connection
+
+    connection = new signalR.HubConnectionBuilder()
+      .withUrl(HUB_URL, {
+        // Pass JWT token for authenticated users
+        accessTokenFactory: () =>
+          useAuthStore.getState().token ?? ''
+      })
+      .withAutomaticReconnect([0, 2000, 10000, 30000])
+      .configureLogging(signalR.LogLevel.Warning)
+      .build()
+
+    return connection
+  }
+
+  export async function startConnection(): Promise<void> {
+    const conn = getSignalRConnection()
+    if (conn.state === signalR.HubConnectionState.Disconnected) {
+      await conn.start()
+    }
+  }
+
+  export async function stopConnection(): Promise<void> {
+    if (connection) {
+      await connection.stop()
+      connection = null
+    }
+  }
+
+----------------------------------------------------------------
+  src/features/chat/hooks/useSignalR.ts
+----------------------------------------------------------------
+
+  import { useEffect, useRef, useState } from 'react'
+  import { getSignalRConnection, startConnection } from '../../../lib/signalr'
+  import type { ChatMessage } from '../../../types/chat.types'
+
+  interface UseSignalROptions {
+    sessionId: string
+    guestMessageCount: number
+    onLimitReached: () => void
+  }
+
+  export function useSignalR({
+    sessionId,
+    guestMessageCount,
+    onLimitReached
+  }: UseSignalROptions) {
+    const [messages, setMessages] = useState<ChatMessage[]>([])
+    const [isStreaming, setIsStreaming] = useState(false)
+    const streamingMessageId = useRef<string | null>(null)
+
+    useEffect(() => {
+      const conn = getSignalRConnection()
+      startConnection()
+
+      // Receive streaming chunks
+      conn.on('ReceiveChunk', (chunk: string) => {
+        setMessages(prev =>
+          prev.map(msg =>
+            msg.id === streamingMessageId.current
+              ? { ...msg, content: msg.content + chunk }
+              : msg
+          )
+        )
+      })
+
+      // Stream complete
+      conn.on('ReceiveComplete', () => {
+        setIsStreaming(false)
+        streamingMessageId.current = null
+      })
+
+      // Error from hub
+      conn.on('ReceiveError', (error: string) => {
+        setIsStreaming(false)
+        console.error('SignalR error:', error)
+      })
+
+      return () => {
+        conn.off('ReceiveChunk')
+        conn.off('ReceiveComplete')
+        conn.off('ReceiveError')
+      }
+    }, [])
+
+    const sendMessage = async (text: string, history: ChatMessage[]) => {
+      const conn = getSignalRConnection()
+
+      // Add user message to UI immediately
+      const userMsg: ChatMessage = {
+        id: crypto.randomUUID(),
+        role: 'user',
+        content: text,
+        timestamp: new Date()
+      }
+
+      // Add empty assistant message that will be filled by streaming
+      const assistantId = crypto.randomUUID()
+      const assistantMsg: ChatMessage = {
+        id: assistantId,
+        role: 'assistant',
+        content: '',
+        timestamp: new Date(),
+        isStreaming: true
+      }
+
+      setMessages(prev => [...prev, userMsg, assistantMsg])
+      setIsStreaming(true)
+      streamingMessageId.current = assistantId
+
+      const chatHistory = history.map(m => ({
+        role: m.role,
+        content: m.content
+      }))
+
+      await conn.invoke(
+        'SendMessage',
+        sessionId,
+        text,
+        chatHistory,
+        guestMessageCount
+      )
+    }
+
+    return { messages, isStreaming, sendMessage }
+  }
+
+
+================================================================
+  SECTION 12 -- ROUTING
+================================================================
+
+----------------------------------------------------------------
+  src/router/index.tsx
+----------------------------------------------------------------
+
+  import { createBrowserRouter } from 'react-router-dom'
+  import { AppLayout } from '../components/layout/AppLayout'
+  import { ProtectedRoute } from './ProtectedRoute'
+  import { GuestRoute } from './GuestRoute'
+
+  // Pages
+  import { LoginPage }     from '../features/auth/pages/LoginPage'
+  import { RegisterPage }  from '../features/auth/pages/RegisterPage'
+  import { UploadPage }    from '../features/upload/pages/UploadPage'
+  import { DashboardPage } from '../features/analytics/pages/DashboardPage'
+  import { EMIPage }       from '../features/emi/pages/EMIPage'
+  import { PredictorPage } from '../features/predictor/pages/PredictorPage'
+  import { GoalsPage }     from '../features/goals/pages/GoalsPage'
+  import { ChatPage }      from '../features/chat/pages/ChatPage'
+
+  export const router = createBrowserRouter([
+    {
+      path: '/',
+      element: <AppLayout />,
+      children: [
+        // Public routes -- redirect to dashboard if logged in
+        {
+          element: <GuestRoute />,
+          children: [
+            { path: 'login',    element: <LoginPage /> },
+            { path: 'register', element: <RegisterPage /> }
+          ]
+        },
+
+        // Public routes -- accessible to everyone (guest + logged in)
+        { index: true,      element: <UploadPage /> },
+        { path: 'upload',   element: <UploadPage /> },
+        { path: 'dashboard',element: <DashboardPage /> },
+        { path: 'emi',      element: <EMIPage /> },
+        { path: 'chat',     element: <ChatPage /> },
+
+        // Protected routes -- requires login
+        {
+          element: <ProtectedRoute />,
+          children: [
+            { path: 'predictor', element: <PredictorPage /> },
+            { path: 'goals',     element: <GoalsPage /> }
+          ]
+        }
+      ]
+    }
+  ])
+
+----------------------------------------------------------------
+  src/router/ProtectedRoute.tsx
+----------------------------------------------------------------
+
+  import { Navigate, Outlet } from 'react-router-dom'
+  import { useAuthStore } from '../store/auth.store'
+
+  export function ProtectedRoute() {
+    const isAuthenticated = useAuthStore(state => state.isAuthenticated)
+
+    if (!isAuthenticated) {
+      return <Navigate to="/login" replace state={{ from: 'protected' }} />
+    }
+
+    return <Outlet />
+  }
+
+----------------------------------------------------------------
+  src/router/GuestRoute.tsx
+----------------------------------------------------------------
+
+  import { Navigate, Outlet } from 'react-router-dom'
+  import { useAuthStore } from '../store/auth.store'
+
+  export function GuestRoute() {
+    const isAuthenticated = useAuthStore(state => state.isAuthenticated)
+
+    if (isAuthenticated) {
+      return <Navigate to="/dashboard" replace />
+    }
+
+    return <Outlet />
+  }
+
+
+================================================================
+  SECTION 13 -- ENVIRONMENT VARIABLES
+================================================================
+
+  .env (development):
+    VITE_API_URL=http://localhost:5000/api/v1
+    VITE_HUB_URL=http://localhost:5000/hubs/chat
+
+  .env.production:
+    VITE_API_URL=https://api.finsense.yourdomain.com/api/v1
+    VITE_HUB_URL=https://api.finsense.yourdomain.com/hubs/chat
+
+  NOTE: All Vite env variables must start with VITE_ to be
+  accessible in browser code via import.meta.env.VITE_*
+
+
+================================================================
+  SECTION 14 -- UTILITY FUNCTIONS
+================================================================
+
+----------------------------------------------------------------
+  src/utils/currency.ts
+----------------------------------------------------------------
+
+  // Format number as Indian Rupee
+  export function formatRupee(amount: number): string {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0
+    }).format(amount)
+  }
+
+  // Format compact (1,00,000 -> Rs.1L)
+  export function formatRupeeCompact(amount: number): string {
+    if (amount >= 10000000) return `Rs.${(amount / 10000000).toFixed(1)}Cr`
+    if (amount >= 100000)   return `Rs.${(amount / 100000).toFixed(1)}L`
+    if (amount >= 1000)     return `Rs.${(amount / 1000).toFixed(1)}K`
+    return formatRupee(amount)
+  }
+
+----------------------------------------------------------------
+  src/utils/date.ts
+----------------------------------------------------------------
+
+  // Format ISO date string to readable format
+  export function formatDate(dateStr: string): string {
+    return new Date(dateStr).toLocaleDateString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    })
+  }
+
+  // Get today's date as ISO string for API requests
+  export function getTodayISO(): string {
+    return new Date().toISOString().split('T')[0]
+  }
+
+----------------------------------------------------------------
+  src/utils/cn.ts
+----------------------------------------------------------------
+
+  import { clsx, type ClassValue } from 'clsx'
+  import { twMerge } from 'tailwind-merge'
+
+  // Utility to merge Tailwind classes without conflicts
+  export function cn(...inputs: ClassValue[]): string {
+    return twMerge(clsx(inputs))
+  }
+
+
+================================================================
+  SECTION 15 -- PACKAGES TO INSTALL
+================================================================
+
+  Core:
+    npm create vite@latest finsense-frontend -- --template react-ts
+    cd finsense-frontend
+
+  Dependencies:
+    npm install react-router-dom
+    npm install @tanstack/react-query
+    npm install zustand
+    npm install react-hook-form
+    npm install zod @hookform/resolvers
+    npm install axios
+    npm install recharts
+    npm install @microsoft/signalr
+    npm install clsx tailwind-merge
+
+  Tailwind CSS:
+    npm install -D tailwindcss postcss autoprefixer
+    npx tailwindcss init -p
+
+  Dev Dependencies:
+    npm install -D @types/node
+    npm install -D eslint prettier
+
+
+================================================================
+  SECTION 16 -- PACKAGE.JSON SCRIPTS
+================================================================
+
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint src --ext ts,tsx",
+    "format": "prettier --write src"
+  }
+
+  WORKFLOW:
+    1. Run backend: dotnet run
+    2. Identify backend DTOs and manually define/update corresponding frontend TypeScript interfaces in src/types/
+    3. Start frontend: npm run dev
+
+
+================================================================
+  SECTION 17 -- RECHARTS SETUP
+================================================================
+
+  Recharts is used in the analytics dashboard.
+  All chart components live in features/analytics/components.
+
+  CHART COLORS (match Tailwind + Indian finance feel):
+    Food        : #F97316  (orange)
+    Transport   : #3B82F6  (blue)
+    EMI         : #EF4444  (red)
+    Entertainment: #A855F7 (purple)
+    Utilities   : #10B981  (green)
+    Shopping    : #F59E0B  (amber)
+    Health      : #06B6D4  (cyan)
+    Education   : #6366F1  (indigo)
+    Salary      : #22C55E  (green -- income)
+    Others      : #9CA3AF  (gray)
+
+  SpendingPieChart.tsx uses:
+    PieChart, Pie, Cell, Tooltip, Legend from recharts
+    Data: analytics.byCategory array
+    Shows: category name + percentage
+
+  SpendingBarChart.tsx uses:
+    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip from recharts
+    Data: analytics.byCategory array
+    Shows: rupee amount per category
+
+
+================================================================
+  SECTION 18 -- TYPE DEFINITION WORKFLOW (DAY-TO-DAY)
+================================================================
+
+  INITIAL SETUP (do once):
+    1. Create feature type files manually under src/types/ (as documented in Section 4)
+    2. Use these interfaces for type declarations in hooks, components, and api services
+
+  WHEN BACKEND DTO CHANGES:
+    1. Developer changes a C# DTO class on the backend (e.g., adds a field to EMIResponseDto.cs)
+    2. Open the corresponding frontend types file (e.g., src/types/emi.types.ts)
+    3. Manually add or modify the field in the TypeScript interface/type to mirror the backend change
+    4. Run `npm run build` or rely on VS Code's editor compilation errors to locate and fix broken references
+    5. Fix the errors across components, api, and hook files to preserve application type-safety
+
+  COMMIT STRATEGY:
+    - Commit src/types/ files regularly when updating models or interfaces
+    - Keep C# and TypeScript definitions in sync across pull requests
+
+
+================================================================
+  SECTION 19 -- TSCONFIG.JSON
+================================================================
+
+  {
+    "compilerOptions": {
+      "target": "ES2020",
+      "useDefineForClassFields": true,
+      "lib": ["ES2020", "DOM", "DOM.Iterable"],
+      "module": "ESNext",
+      "skipLibCheck": true,
+      "moduleResolution": "bundler",
+      "allowImportingTsExtensions": true,
+      "resolveJsonModule": true,
+      "isolatedModules": true,
+      "noEmit": true,
+      "jsx": "react-jsx",
+      "strict": true,
+      "noUnusedLocals": true,
+      "noUnusedParameters": true,
+      "noFallthroughCasesInSwitch": true,
+      "paths": {
+        "@/*": ["./src/*"]
+      }
+    },
+    "include": ["src"],
+    "references": [{ "path": "./tsconfig.node.json" }]
+  }
+
+  NOTE: strict: true is important for financial data.
+  It catches null reference errors, implicit any types,
+  and other issues that could cause silent bugs.
+
+
+================================================================
+  SECTION 20 -- MAIN.TSX AND APP.TSX
+================================================================
+
+----------------------------------------------------------------
+  src/main.tsx
+----------------------------------------------------------------
+
+  import React from 'react'
+  import ReactDOM from 'react-dom/client'
+  import { RouterProvider } from 'react-router-dom'
+  import { QueryClientProvider } from '@tanstack/react-query'
+  import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+  import { router } from './router'
+  import { queryClient } from './lib/queryClient'
+  import './index.css'
+
+  ReactDOM.createRoot(document.getElementById('root')!).render(
+    <React.StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+        {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
+      </QueryClientProvider>
+    </React.StrictMode>
+  )
+
+  NOTE: ReactQueryDevtools only loads in development.
+  It gives you a panel showing all cached queries -- very useful
+  for debugging caching and refetch behavior.
+
+----------------------------------------------------------------
+  src/App.tsx
+----------------------------------------------------------------
+
+  App.tsx is minimal -- all routing is handled by RouterProvider.
+  AppLayout.tsx handles the Navbar + Sidebar + main content area.
+  Each page component handles its own data fetching via hooks.
+
+
+================================================================
+  SECTION 21 -- GUEST VS LOGGED IN FRONTEND BEHAVIOR
+================================================================
+
+  Feature                  | Guest                    | Logged In
+  -------------------------|--------------------------|------------------
+  Upload CSV               | Yes                      | Yes
+  Spending Dashboard       | Yes (top 3 categories)   | Yes (full)
+  EMI Checker              | Yes (1 check then locked)| Yes (unlimited)
+  Month-End Predictor      | Locked (redirect login)  | Yes
+  Savings Goal Tracker     | Locked (redirect login)  | Yes
+  AI Chat                  | 3 messages then banner   | Yes (unlimited)
+  Upload History           | Hidden                   | Visible in sidebar
+  Past Goals               | Hidden                   | Visible
+  Navbar user info         | "Guest User"             | Shows name
+
+  GuestBanner component shown on:
+    - EMI page after 1 check used
+    - Chat page after 3 messages
+    - Predictor page (instead of content)
+    - Goals page (instead of content)
+
+  GuestBanner content:
+    "You have used your free access. Create a free account to
+     unlock unlimited access + Month-End Predictor + Goal Tracker."
+    [Create Free Account] [Login]
+
+
+================================================================
+  SECTION 22 -- ERROR HANDLING STRATEGY
+================================================================
+
+  Global HTTP errors -- handled in Axios interceptor (Section 7)
+    401 -> clear auth, redirect to login
+    503 -> Claude API down, show friendly message
+
+  Query errors -- React Query catches them
+    useQuery returns { isError, error } -- check in component
+    Show ErrorMessage component with error.message
+
+  Mutation errors -- handled in onError callback
+    Show toast notification or inline error message
+
+  Form errors -- Zod + React Hook Form
+    Inline validation messages under each field
+    Submit button disabled while invalid
+
+  Network offline -- React Query handles automatically
+    Queries do not refetch when offline
+    Show offline indicator in Navbar
+
+  Error boundary -- wrap AppLayout in React ErrorBoundary
+    Catches unexpected rendering errors
+    Shows fallback UI instead of white screen
+
+
+================================================================
+
+  Document Version: 1.0
+  FinSense AI Frontend SRS
+  Rysun IPL25 | Sadik (Solo)
+
+================================================================
