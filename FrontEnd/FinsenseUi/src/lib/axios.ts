@@ -15,20 +15,29 @@ export const api = axios.create({
 // Request interceptor -- attach JWT token automatically
 api.interceptors.request.use(
   (config) => {
+    console.log(`[API Request] ${config.method?.toUpperCase()} ${config.url}`, config.data ? { payload: config.data } : '')
     const token = useAuthStore.getState().token
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
     return config
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    console.error('[API Request Error]', error)
+    return Promise.reject(error)
+  }
 )
 
 // Response interceptor -- handle 401 globally
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log(`[API Response] ${response.status} ${response.config.url}`)
+    return response
+  },
   (error) => {
+    console.error(`[API Response Error] ${error.response?.status ?? 'Network Error'} ${error.config?.url}:`, error.response?.data ?? error.message)
     if (error.response?.status === 401) {
+      console.warn('[API Auth] 401 Unauthorized received. Clearing local session and redirecting to login.')
       useAuthStore.getState().clearAuth()
       window.location.href = '/login'
     }

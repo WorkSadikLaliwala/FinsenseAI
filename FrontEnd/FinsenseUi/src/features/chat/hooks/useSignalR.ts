@@ -35,6 +35,7 @@ export function useSignalR({
         // Receive streaming chunks
         conn.on('ReceiveChunk', (chunk: string) => {
           if (!active) return
+          console.log(`[SignalR] ReceiveChunk chunk length: ${chunk.length}`)
           setMessages(prev =>
             prev.map(msg =>
               msg.id === streamingMessageId.current
@@ -47,6 +48,7 @@ export function useSignalR({
         // Stream complete
         conn.on('ReceiveComplete', () => {
           if (!active) return
+          console.log('[SignalR] ReceiveComplete: stream successfully completed.')
           setIsStreaming(false)
           streamingMessageId.current = null
           if (isGuest) {
@@ -57,8 +59,8 @@ export function useSignalR({
         // Error from hub
         conn.on('ReceiveError', (error: string) => {
           if (!active) return
+          console.error('[SignalR] ReceiveError from Hub:', error)
           setIsStreaming(false)
-          console.error('SignalR Hub error:', error)
         })
 
       } catch (err) {
@@ -120,6 +122,7 @@ export function useSignalR({
       }))
 
       // Send to SignalR Hub matching exact DTO signatures
+      console.log(`[SignalR] Invoking 'SendMessage' on Hub for text: "${text}"`)
       await conn.invoke(
         'SendMessage',
         sessionId,
@@ -127,9 +130,10 @@ export function useSignalR({
         chatHistory,
         guestMessageCount
       )
+      console.log("[SignalR] 'SendMessage' invocation finished successfully.")
 
     } catch (err) {
-      console.error('Error invoking SendMessage:', err)
+      console.error('[SignalR] Error invoking SendMessage:', err)
       setIsStreaming(false)
       streamingMessageId.current = null
     }

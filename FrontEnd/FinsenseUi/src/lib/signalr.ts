@@ -24,13 +24,24 @@ export function getSignalRConnection(): signalR.HubConnection {
 export async function startConnection(): Promise<void> {
   const conn = getSignalRConnection()
   if (conn.state === signalR.HubConnectionState.Disconnected) {
-    await conn.start()
+    console.log(`[SignalR] Attempting to connect to Hub: ${HUB_URL}`)
+    try {
+      await conn.start()
+      console.log('[SignalR] Connected successfully. Connection State:', conn.state)
+    } catch (err) {
+      console.error('[SignalR] Failed to start connection:', err)
+      throw err;
+    }
+  } else {
+    console.log('[SignalR] Connection state is already:', conn.state)
   }
 }
 
 export async function stopConnection(): Promise<void> {
   if (connection) {
+    console.log('[SignalR] Stopping connection...')
     await connection.stop()
     connection = null
+    console.log('[SignalR] Connection stopped.')
   }
 }
