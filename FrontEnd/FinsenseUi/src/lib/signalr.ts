@@ -10,6 +10,7 @@ export function getSignalRConnection(): signalR.HubConnection {
 
   connection = new signalR.HubConnectionBuilder()
     .withUrl(HUB_URL, {
+      transport: signalR.HttpTransportType.ServerSentEvents | signalR.HttpTransportType.LongPolling,
       accessTokenFactory: () =>
         useAuthStore.getState().token ?? ''
     })
