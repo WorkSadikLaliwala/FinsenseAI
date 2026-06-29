@@ -97,7 +97,7 @@ public class UploadService : IUploadService
             {
                 SessionId = session.Id,
                 Transactions = new List<TransactionDto>(),
-                Summary = null,
+                Summary = null!,
                 IsGuest = session.IsGuest
             };
         }
@@ -131,7 +131,7 @@ public class UploadService : IUploadService
             {
                 SessionId = session.Id,
                 Transactions = new List<TransactionDto>(),
-                Summary = null,
+                Summary = null!,
                 IsGuest = session.IsGuest
             };
         }
@@ -153,7 +153,7 @@ public class UploadService : IUploadService
             Console.WriteLine("GROQ RAW: " + claudeResponse);
             Console.WriteLine("GROQ RAW LENGTH: " + claudeResponse?.Length);
             Console.WriteLine("GROQ RAW END: " + claudeResponse?.Substring(Math.Max(0, (claudeResponse?.Length ?? 0) - 100)));
-            if (JsonHelper.TryDeserialize<List<CategoryResult>>(claudeResponse, out var result) && result != null)
+            if (!string.IsNullOrEmpty(claudeResponse) && JsonHelper.TryDeserialize<List<CategoryResult>>(claudeResponse, out var result) && result != null)
             {
                 
                 var categoryMap = result
@@ -204,7 +204,7 @@ public class UploadService : IUploadService
         {
             SessionId = session.Id,
             Transactions = txDtos,
-            Summary = summaryDto,
+            Summary = summaryDto!,
             IsGuest = session.IsGuest
         };
     }

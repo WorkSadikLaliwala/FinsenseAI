@@ -136,14 +136,20 @@ public class ClaudeService : IClaudeService
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
         cts.CancelAfter(TimeSpan.FromSeconds(_options.TimeoutSeconds));
 
-        HttpResponseMessage response;
+        HttpResponseMessage? response = null;
+        string? requestError = null;
         try
         {
             response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cts.Token);
         }
         catch (Exception ex)
         {
-            yield return $"Error executing AI request: {ex.Message}";
+            requestError = $"Error executing AI request: {ex.Message}";
+        }
+
+        if (requestError != null || response == null)
+        {
+            yield return requestError ?? "Unknown error executing AI request.";
             yield break;
         }
 
@@ -155,10 +161,11 @@ public class ClaudeService : IClaudeService
         }
         using var stream = await response.Content.ReadAsStreamAsync(cts.Token);
         using var reader = new System.IO.StreamReader(stream);
-        while (!reader.EndOfStream)
+        while (true)
         {
             ct.ThrowIfCancellationRequested();
             var line = await reader.ReadLineAsync(ct);
+            if (line == null) break;
             if (string.IsNullOrWhiteSpace(line)) continue;
             if (line.StartsWith("data: "))
             {
