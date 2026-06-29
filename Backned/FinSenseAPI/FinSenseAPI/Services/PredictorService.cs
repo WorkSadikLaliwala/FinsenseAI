@@ -17,22 +17,34 @@ public class PredictorService : IPredictorService
 
 
     public PredictorService(ITransactionRepository txRepo, IAnalyticsService analytics, IClaudeService claudeService)
-    {
-        _txRepo = txRepo;
+    {        _txRepo = txRepo;
+
         _analytics = analytics;
         _claude = claudeService;
     }
 
     public async Task<PredictorResponseDto> PredictMonthEndAsync(PredictorRequestDto dto, CancellationToken ct)
     {
-        var month = dto.CurrentDate.Month;
-        var year = dto.CurrentDate.Year;
-        var dayOfMonth = dto.CurrentDate.Day;
+        var allSessionTxs = (await _txRepo.GetBySessionIdAsync(dto.SessionId, ct)).ToList();
+        var referenceDate = dto.CurrentDate;
 
-        Console.WriteLine($"CurrentDate received: {dto.CurrentDate}");
-        var allTxs = (await _txRepo.GetCurrentMonthBySessionAsync(dto.SessionId, month, year, ct)).ToList();
+        // Fallback: If no transactions match the current system month/year, use the latest transaction's date
+        if (allSessionTxs.Any() && !allSessionTxs.Any(t => t.Date.Month == referenceDate.Month && t.Date.Year == referenceDate.Year))
+        {
+            var latestTxDate = allSessionTxs.Max(t => t.Date);
+            // Simulate mid-month (e.g. 25th of the month) to show active future spend projections
+            var targetDay = Math.Min(latestTxDate.Day, 25);
+            referenceDate = new DateTime(latestTxDate.Year, latestTxDate.Month, targetDay);
+        }
 
-        var txs = allTxs.Where(t => t.Date.Date <= dto.CurrentDate.Date).ToList();
+        var month = referenceDate.Month;
+        var year = referenceDate.Year;
+        var dayOfMonth = referenceDate.Day;
+
+        Console.WriteLine($"CurrentDate received: {dto.CurrentDate}, ReferenceDate used: {referenceDate}");
+        
+        var allTxs = allSessionTxs.Where(t => t.Date.Month == month && t.Date.Year == year).ToList();
+        var txs = allTxs.Where(t => t.Date.Date <= referenceDate.Date).ToList();
         Console.WriteLine($"Transactions found: {txs.Count}");
 
         var totalSpentSoFar = txs
@@ -40,20 +52,15 @@ public class PredictorService : IPredictorService
             .Sum(t => t.Amount);
 
         var totalIncomeSoFar = txs
-            .Where(t => string.Equals(t.Type, "Credit", StringComparison.OrdinalIgnoreCase))
+            .Where(t => string.Equals(t.Type, "Credit", StringComparison.OrdinalIgnoreCase)
+                     && !(t.Description != null && t.Description.Contains("refund", StringComparison.OrdinalIgnoreCase)))
             .Sum(t => t.Amount);
         
 
         var daysInMonth = DateTime.DaysInMonth(year, month);
         var daysRemaining = Math.Max(0, daysInMonth - dayOfMonth);
-        //var dailyAverage = dayOfMonth > 0 ? Math.Round(totalSpentSoFar / dayOfMonth, 2) : 0m;
-        //var projectedFutureSpend = Math.Round(dailyAverage * daysRemaining, 2);
-        var nonEmiSpend = txs
-    .Where(t => !string.Equals(t.Type, "Credit", StringComparison.OrdinalIgnoreCase)
-             && !string.Equals(t.Category, "EMI", StringComparison.OrdinalIgnoreCase))
-    .Sum(t => t.Amount);
 
-        var dailyAverage = dayOfMonth > 0 ? Math.Round(nonEmiSpend / dayOfMonth, 2) : 0m;
+        var dailyAverage = dayOfMonth > 0 ? Math.Round(totalSpentSoFar / dayOfMonth, 2) : 0m;
         var projectedFutureSpend = Math.Round(dailyAverage * daysRemaining, 2);
 
         var projectedBalance = Math.Round(totalIncomeSoFar - (totalSpentSoFar + projectedFutureSpend), 2);

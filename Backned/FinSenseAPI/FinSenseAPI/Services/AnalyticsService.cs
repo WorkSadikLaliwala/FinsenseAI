@@ -53,10 +53,10 @@ public class AnalyticsService : IAnalyticsService
     {
         var txs = (await _txRepo.GetBySessionIdAsync(sessionId, ct)).ToList();
 
-        var totalIncome = txs.Where(t => string.Equals(t.Type, "Credit", StringComparison.OrdinalIgnoreCase)).Sum(t => t.Amount);
-        var totalSpending = txs.Where(t => string.Equals(t.Type, "Debit", StringComparison.OrdinalIgnoreCase)).Sum(t => t.Amount);
         var totalRefunds = txs.Where(t => t.Description != null && t.Description.Contains("refund", StringComparison.OrdinalIgnoreCase)).Sum(t => t.Amount);
-        var netSavings = totalIncome - totalSpending;
+        var totalIncome = txs.Where(t => string.Equals(t.Type, "Credit", StringComparison.OrdinalIgnoreCase) && !(t.Description != null && t.Description.Contains("refund", StringComparison.OrdinalIgnoreCase))).Sum(t => t.Amount);
+        var totalSpending = txs.Where(t => string.Equals(t.Type, "Debit", StringComparison.OrdinalIgnoreCase)).Sum(t => t.Amount);
+        var netSavings = totalIncome + totalRefunds - totalSpending;
 
         // Bug 1 fix — Debit only for category breakdown
         var debits = txs.Where(t => string.Equals(t.Type, "Debit", StringComparison.OrdinalIgnoreCase)).ToList();

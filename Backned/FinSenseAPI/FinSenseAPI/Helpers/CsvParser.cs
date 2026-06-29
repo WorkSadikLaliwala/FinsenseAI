@@ -31,7 +31,7 @@ public static class CsvParser
     Encoding.UTF8,
     detectEncodingFromByteOrderMarks: true);
         string? line;
-        var formats = new[] { "dd/MM/yy", "dd-MM-yyyy", "MM/dd/yyyy", "MM-dd-yyyy", "dd/MM/yyyy" };
+        var formats = new[] { "dd/MM/yyyy", "dd/MM/yy", "dd-MM-yyyy", "dd-MM-yy", "MM/dd/yyyy", "MM-dd-yyyy" };
 
         // Skip header if present
         var first = await reader.ReadLineAsync();
@@ -66,7 +66,7 @@ public static class CsvParser
         //            }
         //        }
         //    }
-
+        //
         //    line = await reader.ReadLineAsync();
         //}
         while (line != null)
@@ -77,7 +77,7 @@ public static class CsvParser
             if (parts.Length >= 4)
             {
                 if (DateTime.TryParseExact(parts[0].Trim(), formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dt)
-                    || DateTime.TryParse(parts[0].Trim(), out dt))
+                    || DateTime.TryParse(parts[0].Trim(), new CultureInfo("en-IN"), DateTimeStyles.None, out dt))
                 {
                     var desc = parts[1].Trim();
 

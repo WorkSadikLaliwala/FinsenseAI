@@ -39,7 +39,7 @@ builder.Services.AddCors(options =>
     var allowed = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
     if (allowed == null || allowed.Length == 0)
     {
-        allowed = new[] { "http://localhost:3000" };
+        allowed = new[] { "http://localhost:5173" };
     }
 
     options.AddPolicy("AllowReact", policy =>
@@ -154,6 +154,13 @@ builder.Services.AddRateLimiter(options =>
         await context.HttpContext.Response.WriteAsJsonAsync(ApiResponse<object>.Fail("Too many requests. Please try again later.", 429), ct);
     };
 });
+
+builder.Services.AddControllers(options =>
+{
+    // Registers the filter globally for all controllers
+    options.Filters.Add<GlobalApiResponseFilter>();
+});
+
 
 // TODO: Register AutoMapper, FluentValidation, Serilog as needed.
 
