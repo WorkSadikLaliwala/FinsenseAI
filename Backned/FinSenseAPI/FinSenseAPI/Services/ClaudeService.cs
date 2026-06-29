@@ -163,8 +163,8 @@ public class ClaudeService : IClaudeService
         using var reader = new System.IO.StreamReader(stream);
         while (true)
         {
-            ct.ThrowIfCancellationRequested();
-            var line = await reader.ReadLineAsync(ct);
+            cts.Token.ThrowIfCancellationRequested();
+            var line = await reader.ReadLineAsync(cts.Token);
             if (line == null) break;
             if (string.IsNullOrWhiteSpace(line)) continue;
             if (line.StartsWith("data: "))

@@ -49,7 +49,10 @@ builder.Services.AddCors(options =>
 });
 
 // SignalR
-builder.Services.AddSignalR();
+builder.Services.AddSignalR(options =>
+{
+    options.MaximumReceiveMessageSize = 1048576; // 1 MB
+});
 
 // Entity Framework Core - PostgreSQL
 builder.Services.AddDbContext<AppDbContext>(options =>
