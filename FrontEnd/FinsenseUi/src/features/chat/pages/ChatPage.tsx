@@ -16,6 +16,69 @@ import {
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
+function formatAIMessage(text: string) {
+  const lines = text.split('\n');
+
+  return lines.map((line, lineIndex) => {
+    let content = line.trim();
+    const isBullet = content.startsWith('* ');
+    if (isBullet) {
+      content = content.substring(2);
+    }
+
+    const parts: React.ReactNode[] = [];
+    const regex = /(\*\*.*?\*\*|\b\d{4}-\d{2}-\d{2}\b|₹\d+(?:\.\d{2})?)/g;
+    const tokens = content.split(regex);
+
+    tokens.forEach((token, tokenIndex) => {
+      const key = `${lineIndex}-${tokenIndex}`;
+      if (token.startsWith('**') && token.endsWith('**')) {
+        const cleanBold = token.slice(2, -2);
+        parts.push(<strong key={key} className="font-bold text-white">{cleanBold}</strong>);
+      } else if (/^\b\d{4}-\d{2}-\d{2}\b$/.test(token)) {
+        try {
+          const dateObj = new Date(token);
+          if (!isNaN(dateObj.getTime())) {
+            const formatted = dateObj.toLocaleDateString('en-US', {
+              day: '2-digit',
+              month: 'short',
+              year: 'numeric'
+            });
+            parts.push(
+              <span key={key} className="inline-flex items-center px-1.5 py-0.5 rounded bg-slate-950 border border-slate-800 text-[10px] text-emerald-400 font-semibold select-none mx-0.5">
+                {formatted}
+              </span>
+            );
+          } else {
+            parts.push(token);
+          }
+        } catch {
+          parts.push(token);
+        }
+      } else if (/^₹\d+/.test(token)) {
+        parts.push(<span key={key} className="text-emerald-400 font-semibold">{token}</span>);
+      } else {
+        parts.push(token);
+      }
+    });
+
+    if (isBullet) {
+      return (
+        <div key={lineIndex} className="flex items-start gap-2 pl-2 py-1">
+          <span className="text-emerald-400 select-none mt-1 text-[8px]">•</span>
+          <p className="flex-1 text-slate-350">{parts}</p>
+        </div>
+      );
+    }
+
+    return (
+      <p key={lineIndex} className={`text-slate-300 min-h-[1rem] ${line.trim() === '' ? 'h-3' : 'py-0.5'}`}>
+        {parts}
+      </p>
+    );
+  });
+}
+
 export function ChatPage() {
   const { sessionId, isGuest, guestMessageCount } = useSessionStore()
   const [inputText, setInputText] = useState('')
@@ -99,9 +162,12 @@ export function ChatPage() {
             <Bot className="w-5 h-5" />
           </div>
           <div>
-            <h1 className="text-base font-bold text-white flex items-center gap-1.5">
+            <h1 className="text-base font-bold text-white flex items-center gap-2">
               <span>FinSense AI Advisor</span>
-              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[9px] font-semibold flex items-center gap-1 select-none animate-pulse">
+                <Sparkles className="w-2.5 h-2.5 text-emerald-400" />
+                <span>Llama 3 (Groq API)</span>
+              </span>
             </h1>
             <p className="text-[10px] text-slate-400">Contextualized personal budget assistant</p>
           </div>
@@ -121,14 +187,35 @@ export function ChatPage() {
       {/* Chat Messages Log Area */}
       <div className="flex-1 overflow-y-auto pr-2 space-y-4 min-h-0">
         {messages.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-center max-w-sm mx-auto space-y-4">
+          <div className="h-full flex flex-col items-center justify-center text-center max-w-md mx-auto space-y-5">
             <div className="w-10 h-10 bg-slate-900 border border-slate-850 rounded-xl flex items-center justify-center text-slate-500">
               <MessageSquare className="w-5 h-5" />
             </div>
-            <h4 className="text-white text-xs font-bold">Ask AI Anything</h4>
-            <p className="text-slate-500 text-[11px] leading-relaxed">
-              Ask questions like: "Where did I spend the most?", "How can I cut down Food costs?", or "Is my EMI budget safe?"
-            </p>
+            <div>
+              <h4 className="text-white text-xs font-bold">Ask AI Anything</h4>
+              <p className="text-slate-500 text-[11px] leading-relaxed mt-1">
+                Ask questions about your budget, transactions, and credit allocations.
+              </p>
+            </div>
+            <div className="pt-2 flex flex-col items-center gap-2 w-full select-none">
+              <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Tap a suggestion to ask:</span>
+              <div className="flex flex-col gap-2 w-full max-w-xs">
+                {[
+                  "Where did I spend the most money?",
+                  "How can I reduce my Food category spending?",
+                  "Analyze if my monthly EMI budget is safe"
+                ].map((preset) => (
+                  <button
+                    key={preset}
+                    type="button"
+                    onClick={() => setInputText(preset)}
+                    className="w-full px-3 py-2 bg-slate-950 border border-slate-850 hover:border-emerald-500/30 text-slate-400 hover:text-white rounded-xl text-[11px] font-medium text-left transition-all hover:bg-slate-900"
+                  >
+                    {preset}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         ) : (
           messages.map((msg) => {
@@ -163,8 +250,10 @@ export function ChatPage() {
                         <Loader2 className="w-3.5 h-3.5 animate-spin" />
                         <span>AI is thinking...</span>
                       </div>
-                    ) : (
+                    ) : isUser ? (
                       msg.content
+                    ) : (
+                      formatAIMessage(msg.content)
                     )}
                   </div>
                   <span className="text-[9px] text-slate-500 block px-1">

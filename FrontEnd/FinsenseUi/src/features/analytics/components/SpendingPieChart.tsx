@@ -17,6 +17,9 @@ const CategoryColors: Record<string, string> = {
   Education: '#6366F1',   // indigo
   Salary: '#22C55E',      // green
   Refund: '#14B8A6',      // teal
+  Rent: '#EC4899',        // pink
+  'Cash/ATM': '#84CC16',  // lime
+  Maintenance: '#0EA5E9',  // light blue
   Others: '#9CA3AF'       // gray
 }
 

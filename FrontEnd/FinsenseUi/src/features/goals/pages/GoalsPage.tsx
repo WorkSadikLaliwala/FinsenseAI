@@ -21,6 +21,7 @@ import {
 } from 'lucide-react'
 
 export function GoalsPage() {
+  const todayString = new Date().toISOString().split('T')[0]
   const { data: goals, isLoading, error } = useGoals()
   const { mutate: createGoal, isPending: isCreating } = useCreateGoal()
   const { mutate: deleteGoal } = useDeleteGoal()
@@ -154,6 +155,7 @@ export function GoalsPage() {
               </label>
               <input
                 type="number"
+                step="any"
                 placeholder="1000000"
                 className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-emerald-500/30 focus:ring-1 focus:ring-emerald-500/10 rounded-xl text-sm text-white placeholder-slate-600 outline-none transition-all"
                 {...register('targetAmount', { valueAsNumber: true })}
@@ -168,7 +170,15 @@ export function GoalsPage() {
               </label>
               <input
                 type="date"
-                className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-emerald-500/30 focus:ring-1 focus:ring-emerald-500/10 rounded-xl text-sm text-white placeholder-slate-600 outline-none transition-all"
+                min={todayString}
+                className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-emerald-500/30 focus:ring-1 focus:ring-emerald-500/10 rounded-xl text-sm text-white placeholder-slate-650 outline-none transition-all cursor-pointer"
+                onClick={(e) => {
+                  try {
+                    e.currentTarget.showPicker();
+                  } catch (err) {
+                    console.warn('showPicker not supported', err);
+                  }
+                }}
                 {...register('targetDate')}
               />
               {errors.targetDate && <p className="mt-1 text-xs text-rose-400">{errors.targetDate.message}</p>}
@@ -181,6 +191,7 @@ export function GoalsPage() {
               </label>
               <input
                 type="number"
+                step="any"
                 placeholder="50000"
                 className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 focus:border-emerald-500/30 focus:ring-1 focus:ring-emerald-500/10 rounded-xl text-sm text-white placeholder-slate-600 outline-none transition-all"
                 {...register('currentSavings', { valueAsNumber: true })}
@@ -343,11 +354,15 @@ export function GoalsPage() {
               </div>
             </div>
 
-            {/* AI Review Text */}
             <div className="space-y-2 text-xs">
-              <h5 className="font-bold text-white flex items-center gap-1.5">
-                <FileText className="w-4 h-4 text-emerald-400" />
-                <span>AI Feasibility Assessment</span>
+              <h5 className="font-bold text-white flex items-center justify-between gap-1.5 w-full">
+                <span className="flex items-center gap-1.5">
+                  <FileText className="w-4 h-4 text-emerald-400" />
+                  <span>AI Feasibility Assessment</span>
+                </span>
+                <span className="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[9px] font-semibold select-none animate-pulse">
+                  Llama 3 (Groq API)
+                </span>
               </h5>
               <p className="text-slate-300 leading-relaxed bg-slate-950/40 p-3 rounded-lg border border-slate-850">
                 {feasibilityReport.reason}
@@ -390,6 +405,7 @@ export function GoalsPage() {
                 </label>
                 <input
                   type="number"
+                  step="any"
                   value={updatedSavings}
                   onChange={(e) => setUpdatedSavings(Number(e.target.value))}
                   className={`w-full px-4 py-2.5 bg-slate-950 border rounded-xl text-sm text-white outline-none transition-all

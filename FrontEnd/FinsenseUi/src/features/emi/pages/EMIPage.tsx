@@ -123,6 +123,7 @@ export function EMIPage() {
                 </label>
                 <input
                   type="number"
+                  step="any"
                   disabled={isLocked}
                   className="w-full px-4 py-2 bg-slate-950 border border-slate-800 focus:border-emerald-500/30 focus:ring-1 focus:ring-emerald-500/10 rounded-xl text-sm text-white placeholder-slate-600 outline-none outline-0 transition-all"
                   {...register('salary', { valueAsNumber: true })}
@@ -137,6 +138,7 @@ export function EMIPage() {
                 </label>
                 <input
                   type="number"
+                  step="any"
                   disabled={isLocked}
                   className="w-full px-4 py-2 bg-slate-950 border border-slate-800 focus:border-emerald-500/30 focus:ring-1 focus:ring-emerald-500/10 rounded-xl text-sm text-white placeholder-slate-600 outline-none outline-0 transition-all"
                   {...register('monthlyExpenses', { valueAsNumber: true })}
@@ -151,6 +153,7 @@ export function EMIPage() {
                 </label>
                 <input
                   type="number"
+                  step="any"
                   disabled={isLocked}
                   className="w-full px-4 py-2 bg-slate-950 border border-slate-800 focus:border-emerald-500/30 focus:ring-1 focus:ring-emerald-500/10 rounded-xl text-sm text-white placeholder-slate-600 outline-none outline-0 transition-all"
                   {...register('loanAmount', { valueAsNumber: true })}
@@ -165,6 +168,7 @@ export function EMIPage() {
                 </label>
                 <input
                   type="number"
+                  step="any"
                   disabled={isLocked}
                   className="w-full px-4 py-2 bg-slate-950 border border-slate-800 focus:border-emerald-500/30 focus:ring-1 focus:ring-emerald-500/10 rounded-xl text-sm text-white placeholder-slate-600 outline-none outline-0 transition-all"
                   {...register('tenureMonths', { valueAsNumber: true })}
@@ -179,7 +183,7 @@ export function EMIPage() {
                 </label>
                 <input
                   type="number"
-                  step="0.1"
+                  step="any"
                   disabled={isLocked}
                   className="w-full px-4 py-2 bg-slate-950 border border-slate-800 focus:border-emerald-500/30 focus:ring-1 focus:ring-emerald-500/10 rounded-xl text-sm text-white placeholder-slate-600 outline-none outline-0 transition-all"
                   {...register('interestRatePerAnnum', { valueAsNumber: true })}
@@ -264,9 +268,14 @@ export function EMIPage() {
 
               {/* AI Affordability Explanation */}
               <div className="p-4 rounded-xl bg-slate-950 border border-slate-850 space-y-3.5">
-                <h4 className="text-xs font-bold text-white flex items-center gap-2">
-                  <Sparkles className="w-4.5 h-4.5 text-emerald-400" />
-                  <span>Affordability Review</span>
+                <h4 className="text-xs font-bold text-white flex items-center justify-between gap-2 w-full">
+                  <span className="flex items-center gap-2">
+                    <Sparkles className="w-4.5 h-4.5 text-emerald-400" />
+                    <span>Affordability Review</span>
+                  </span>
+                  <span className="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[9px] font-semibold select-none animate-pulse">
+                    Llama 3 (Groq API)
+                  </span>
                 </h4>
                 <p className="text-xs text-slate-300 leading-relaxed">
                   {result.reason}

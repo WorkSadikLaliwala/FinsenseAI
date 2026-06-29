@@ -13,7 +13,8 @@ import {
   ArrowRight,
   Upload,
   ArrowUpRight,
-  ArrowDownLeft
+  ArrowDownLeft,
+  Sparkles
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
@@ -102,7 +103,13 @@ export function DashboardPage() {
       {/* Title */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Financial Dashboard</h1>
+          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+            <span>Financial Dashboard</span>
+            <span className="px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[9px] font-semibold flex items-center gap-1 select-none animate-pulse">
+              <Sparkles className="w-2.5 h-2.5 text-emerald-400" />
+              <span>Llama 3 (Groq AI)</span>
+            </span>
+          </h1>
           <p className="text-slate-400 text-xs mt-0.5">Overview of your categorized bank statement analysis</p>
         </div>
         {isGuest && (
@@ -113,47 +120,47 @@ export function DashboardPage() {
       </div>
 
       {/* Metric Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 select-none">
         {/* Income */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex items-center justify-between relative overflow-hidden">
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex items-center justify-between relative overflow-hidden group hover:border-emerald-500/20 transition-all duration-300 hover:-translate-y-0.5">
           <div className="space-y-1.5">
             <span className="text-slate-500 text-xs font-semibold uppercase tracking-wider">Total Income</span>
             <h3 className="text-xl font-extrabold text-white">{formatRupee(analytics.totalIncome)}</h3>
           </div>
-          <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center border border-emerald-500/20 text-emerald-400">
+          <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center border border-emerald-500/20 text-emerald-400 group-hover:scale-105 transition-transform duration-300">
             <TrendingUp className="w-5 h-5" />
           </div>
         </div>
 
         {/* Expenses */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex items-center justify-between relative overflow-hidden">
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex items-center justify-between relative overflow-hidden group hover:border-rose-500/20 transition-all duration-300 hover:-translate-y-0.5">
           <div className="space-y-1.5">
             <span className="text-slate-500 text-xs font-semibold uppercase tracking-wider">Total Spending</span>
             <h3 className="text-xl font-extrabold text-white">{formatRupee(analytics.totalSpending)}</h3>
           </div>
-          <div className="w-10 h-10 bg-rose-500/10 rounded-xl flex items-center justify-center border border-rose-500/20 text-rose-400">
+          <div className="w-10 h-10 bg-rose-500/10 rounded-xl flex items-center justify-center border border-rose-500/20 text-rose-400 group-hover:scale-105 transition-transform duration-300">
             <TrendingDown className="w-5 h-5" />
           </div>
         </div>
 
         {/* Net Savings */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex items-center justify-between relative overflow-hidden">
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex items-center justify-between relative overflow-hidden group hover:border-blue-500/20 transition-all duration-300 hover:-translate-y-0.5">
           <div className="space-y-1.5">
             <span className="text-slate-500 text-xs font-semibold uppercase tracking-wider">Net Savings</span>
             <h3 className="text-xl font-extrabold text-white">{formatRupee(analytics.netSavings)}</h3>
           </div>
-          <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center border border-blue-500/20 text-blue-400">
+          <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center border border-blue-500/20 text-blue-400 group-hover:scale-105 transition-transform duration-300">
             <PiggyBank className="w-5 h-5" />
           </div>
         </div>
 
         {/* Refunds */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex items-center justify-between relative overflow-hidden">
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex items-center justify-between relative overflow-hidden group hover:border-teal-500/20 transition-all duration-300 hover:-translate-y-0.5">
           <div className="space-y-1.5">
             <span className="text-slate-500 text-xs font-semibold uppercase tracking-wider">Refunds / Cashbacks</span>
             <h3 className="text-xl font-extrabold text-white">{formatRupee(analytics.totalRefunds)}</h3>
           </div>
-          <div className="w-10 h-10 bg-teal-500/10 rounded-xl flex items-center justify-center border border-teal-500/20 text-teal-400">
+          <div className="w-10 h-10 bg-teal-500/10 rounded-xl flex items-center justify-center border border-teal-500/20 text-teal-400 group-hover:scale-105 transition-transform duration-300">
             <RefreshCcw className="w-5 h-5" />
           </div>
         </div>

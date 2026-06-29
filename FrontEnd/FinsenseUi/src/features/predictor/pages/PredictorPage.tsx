@@ -13,6 +13,30 @@ import {
   ShieldAlert
 } from 'lucide-react'
 
+function formatCommentary(text: string) {
+  if (!text) return null;
+  // Replace any dollar signs with rupee signs
+  const cleanedText = text.replace(/\$/g, '₹');
+
+  // Tokenize bold text, rupee values, and category names
+  const regex = /(\*\*.*?\*\*|"[A-Za-z0-9\s_-]+?"|-?₹\d+(?:,\d{3})*(?:\.\d{2})?)/g;
+  const tokens = cleanedText.split(regex);
+
+  return tokens.map((token, index) => {
+    const key = `comm-${index}`;
+    if (token.startsWith('**') && token.endsWith('**')) {
+      const cleanBold = token.slice(2, -2);
+      return <strong key={key} className="font-bold text-white">{cleanBold}</strong>;
+    } else if (token.startsWith('"') && token.endsWith('"') && token.length > 2) {
+      return <span key={key} className="text-emerald-400 font-semibold">{token}</span>;
+    } else if (/^[-]?₹/.test(token)) {
+      return <span key={key} className="text-emerald-400 font-extrabold">{token}</span>;
+    } else {
+      return token;
+    }
+  });
+}
+
 export function PredictorPage() {
   const { sessionId } = useSessionStore()
   const { data: result, isLoading, error } = usePredictor()
@@ -214,14 +238,19 @@ export function PredictorPage() {
 
           {/* AI Commentary Panel (1/3) */}
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
-            <h4 className="text-sm font-bold text-white flex items-center gap-2">
-              <Sparkles className="w-4.5 h-4.5 text-emerald-400" />
-              <span>AI Cashflow Advisory</span>
+            <h4 className="text-sm font-bold text-white flex items-center justify-between gap-2 w-full">
+              <span className="flex items-center gap-2">
+                <Sparkles className="w-4.5 h-4.5 text-emerald-400" />
+                <span>AI Cashflow Advisory</span>
+              </span>
+              <span className="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[9px] font-semibold select-none animate-pulse">
+                Llama 3 (Groq API)
+              </span>
             </h4>
 
             <div className="p-4 bg-slate-950 border border-slate-850 rounded-xl">
-              <p className="text-xs text-slate-300 leading-relaxed">
-                {result.aiCommentary}
+              <p className="text-xs text-slate-350 leading-relaxed whitespace-pre-line">
+                {formatCommentary(result.aiCommentary)}
               </p>
             </div>
 

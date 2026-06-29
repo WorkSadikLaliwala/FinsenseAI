@@ -121,7 +121,10 @@ Insurance: LIC, Insurance, Premium, HDFC Life, ICICI Prudential, SBI Life, Max L
 Health: Pharmacy, Medical, Apollo Pharmacy, MedPlus, Netmeds, 1mg, PharmEasy, Hospital, Clinic, Diagnostic, Lab, Thyrocare, Dr Lal, Metropolis, Gym, Cult Fit, CureFit, Fitness, Yoga, Practo, Doctor
 Salary: Salary, Salary Credit, Freelance, Freelance Payment, Income, Wages, Stipend, Bonus Credit, Commission, Consulting Fees, Project Payment
 Shopping: Amazon Purchase, Amazon Order, Flipkart, Myntra, Meesho, Nykaa, Ajio, Snapdeal, DMart, Reliance Fresh, Reliance Smart, Big Bazaar, More Supermarket, Decathlon, Lifestyle, Shoppers Stop, Pantaloons, Westside, Croma, Vijay Sales, Reliance Digital
-Others: ATM, Cash Withdrawal, UPI Transfer, NEFT Transfer, IMPS, Recharge, Paytm Recharge, Interest Credit, Dividend, Cashback, Miscellaneous
+Rent: Rent, House Rent, Rent Transfer, LANDLORD, Rental, PG Rent, Lease Payment, Rent Payment
+Cash/ATM: ATM, Cash Withdrawal, Cash, ATM Cash, Self Transfer, Cash Dispensed
+Maintenance: Maintenance, Society Maintenance, Maintenance Charge, Society Bill, Repair, Building Maintenance
+Others: UPI Transfer, NEFT Transfer, IMPS, Recharge, Paytm Recharge, Interest Credit, Dividend, Cashback, Miscellaneous
 
 If nothing matches, use Others.
 

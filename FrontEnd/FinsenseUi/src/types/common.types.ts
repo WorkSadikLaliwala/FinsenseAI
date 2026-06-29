@@ -22,4 +22,7 @@ export type Category =
   | 'Education'
   | 'Salary'
   | 'Refund'
+  | 'Rent'
+  | 'Cash/ATM'
+  | 'Maintenance'
   | 'Others'
