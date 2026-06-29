@@ -36,14 +36,14 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Transaction>(b =>
         {
             b.HasKey(t => t.Id);
-            b.Property(t => t.Amount).HasColumnType("decimal(18,2)");
+            b.Property(t => t.Amount).HasPrecision(18,2);
             b.HasOne(t => t.Session).WithMany(s => s.Transactions).HasForeignKey(t => t.SessionId);
         });
 
         modelBuilder.Entity<Goal>(b =>
         {
             b.HasKey(g => g.Id);
-            b.Property(g => g.TargetAmount).HasColumnType("decimal(18,2)");
+            b.Property(g => g.TargetAmount).HasPrecision(18,2);
             b.HasOne(g => g.User).WithMany(u => u.Goals).HasForeignKey(g => g.UserId);
         });
 

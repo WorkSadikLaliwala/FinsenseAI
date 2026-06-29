@@ -51,10 +51,11 @@ builder.Services.AddCors(options =>
 // SignalR
 builder.Services.AddSignalR();
 
-// Entity Framework Core - SQL Server
+// Entity Framework Core - PostgreSQL
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
+        npgsqlOptions => npgsqlOptions.EnableRetryOnFailure());
 });
 
 // Authentication (JWT Bearer) - requires Jwt options set in configuration

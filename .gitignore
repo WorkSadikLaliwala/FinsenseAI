@@ -35,6 +35,7 @@ _ReSharper*/
 # App Settings
 appsettings.Development.json
 appsettings.json
+appsettings.Production.json
 
 
 

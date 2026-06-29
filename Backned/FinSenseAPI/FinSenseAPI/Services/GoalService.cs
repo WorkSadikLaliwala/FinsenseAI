@@ -122,7 +122,7 @@ public class GoalService : IGoalService
             UserId = userId,
             GoalName = dto.GoalName,
             TargetAmount = dto.TargetAmount,
-            TargetDate = dto.TargetDate,
+            TargetDate = DateTime.SpecifyKind(dto.TargetDate, DateTimeKind.Utc),
             CurrentSavings = dto.CurrentSavings,
             CreatedAt = DateTime.UtcNow,
             Status = "Pending"
@@ -239,7 +239,7 @@ public class GoalService : IGoalService
             goal.TargetAmount = request.TargetAmount.Value;
 
         if (request.TargetDate.HasValue)
-            goal.TargetDate = request.TargetDate.Value;
+            goal.TargetDate = DateTime.SpecifyKind(request.TargetDate.Value, DateTimeKind.Utc);
 
         if (request.CurrentSavings.HasValue)
             goal.CurrentSavings = request.CurrentSavings.Value;

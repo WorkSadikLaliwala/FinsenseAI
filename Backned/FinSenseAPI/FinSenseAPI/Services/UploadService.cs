@@ -116,7 +116,7 @@ public class UploadService : IUploadService
             transactions.Add(new Transaction
             {
                 SessionId = session.Id,
-                Date = p.Date,
+                Date = (p.Date.Kind == DateTimeKind.Utc) ? p.Date : (p.Date.Kind == DateTimeKind.Local) ? p.Date.ToUniversalTime() : DateTime.SpecifyKind(p.Date, DateTimeKind.Utc),
                 Description = p.Description,
                 Amount = p.Amount,
                 Type = p.Type,
