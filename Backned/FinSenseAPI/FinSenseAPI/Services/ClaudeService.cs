@@ -17,6 +17,7 @@ public class ClaudeService : IClaudeService
 {
     private readonly ClaudeOptions _options;
     private static readonly int[] RetryDelaysMs = { 1000, 2000, 4000 };
+    private static readonly HttpClient _httpClient = new HttpClient();
 
     public ClaudeService(IOptions<ClaudeOptions> options)
     {
@@ -28,29 +29,15 @@ public class ClaudeService : IClaudeService
         var attempts = Math.Max(1, _options.MaxRetries);
         var url = "https://api.groq.com/openai/v1/chat/completions";
 
-        using var http = new HttpClient() { Timeout = TimeSpan.FromSeconds(_options.TimeoutSeconds) };
-        http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _options.ApiKey);
-
         for (int attempt = 0; attempt <= attempts; attempt++)
         {
             try
             {
                 var messages = new List<object>();
 
-                //if (!string.IsNullOrWhiteSpace(systemPrompt))
-                //    messages.Add(new { role = "system", content = systemPrompt });
-
-                //messages.Add(new { role = "user", content = string.IsNullOrWhiteSpace(userMessage) ? systemPrompt : userMessage });
-                //if (!string.IsNullOrWhiteSpace(systemPrompt))
-                //    messages.Add(new { role = "system", content = systemPrompt });
-
-                //// Only add user message if not empty
-                //if (!string.IsNullOrWhiteSpace(userMessage))
-                //    messages.Add(new { role = "user", content = userMessage });
                 if (!string.IsNullOrWhiteSpace(systemPrompt))
                     messages.Add(new { role = "system", content = systemPrompt });
 
-                // Always ensure there's a user message
                 var userContent = string.IsNullOrWhiteSpace(userMessage) ? "Process the above." : userMessage;
                 messages.Add(new { role = "user", content = userContent });
 
@@ -62,17 +49,25 @@ public class ClaudeService : IClaudeService
                     messages
                 };
 
-                var content = new StringContent(
-                    JsonSerializer.Serialize(payload),
-                    Encoding.UTF8,
-                    "application/json"
-                );
+                var request = new HttpRequestMessage(HttpMethod.Post, url)
+                {
+                    Content = new StringContent(
+                        JsonSerializer.Serialize(payload),
+                        Encoding.UTF8,
+                        "application/json"
+                    )
+                };
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _options.ApiKey);
 
-                var response = await http.PostAsync(url, content, ct);
+                // Use custom timeout via linked cancellation token source if configured
+                using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+                cts.CancelAfter(TimeSpan.FromSeconds(_options.TimeoutSeconds));
+
+                var response = await _httpClient.SendAsync(request, cts.Token);
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var text = await response.Content.ReadAsStringAsync(ct);
+                    var text = await response.Content.ReadAsStringAsync(cts.Token);
                     using var doc = JsonDocument.Parse(text);
                     return doc.RootElement
                         .GetProperty("choices")[0]
@@ -110,13 +105,11 @@ public class ClaudeService : IClaudeService
     }
 
     public async IAsyncEnumerable<string> StreamAsync(
-    string systemPrompt,
-    string userMessage,
-    [EnumeratorCancellation] CancellationToken ct)
+        string systemPrompt,
+        string userMessage,
+        [EnumeratorCancellation] CancellationToken ct)
     {
         var url = "https://api.groq.com/openai/v1/chat/completions";
-        using var http = new HttpClient() { Timeout = TimeSpan.FromSeconds(_options.TimeoutSeconds) };
-        http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _options.ApiKey);
         var messages = new List<object>();
         if (!string.IsNullOrWhiteSpace(systemPrompt))
             messages.Add(new { role = "system", content = systemPrompt });
@@ -138,14 +131,29 @@ public class ClaudeService : IClaudeService
                 "application/json"
             )
         };
-        using var response = await http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _options.ApiKey);
+
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        cts.CancelAfter(TimeSpan.FromSeconds(_options.TimeoutSeconds));
+
+        HttpResponseMessage response;
+        try
+        {
+            response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cts.Token);
+        }
+        catch (Exception ex)
+        {
+            yield return $"Error executing AI request: {ex.Message}";
+            yield break;
+        }
+
         if (!response.IsSuccessStatusCode)
         {
-            var errText = await response.Content.ReadAsStringAsync(ct);
+            var errText = await response.Content.ReadAsStringAsync(cts.Token);
             yield return $"Error calling AI service: {response.StatusCode} - {errText}";
             yield break;
         }
-        using var stream = await response.Content.ReadAsStreamAsync(ct);
+        using var stream = await response.Content.ReadAsStreamAsync(cts.Token);
         using var reader = new System.IO.StreamReader(stream);
         while (!reader.EndOfStream)
         {
