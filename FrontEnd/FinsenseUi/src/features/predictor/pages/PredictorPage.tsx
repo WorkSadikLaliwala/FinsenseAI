@@ -172,8 +172,8 @@ export function PredictorPage() {
                         result.status === 'Safe'
                           ? '#10b981'
                           : result.status === 'Risky'
-                          ? '#f59e0b'
-                          : '#f43f5e'
+                            ? '#f59e0b'
+                            : '#f43f5e'
                       }
                       strokeWidth="10"
                       fill="transparent"
@@ -250,7 +250,7 @@ export function PredictorPage() {
 
             <div className="p-4 bg-slate-950 border border-slate-850 rounded-xl">
               <p className="text-xs text-slate-350 leading-relaxed whitespace-pre-line">
-                {formatCommentary(result.aiCommentary)}
+                {formatCommentary(result.aiCommentary || 'Not enough data yet.')}
               </p>
             </div>
 

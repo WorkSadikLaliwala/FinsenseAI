@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: finsense-postgres
+    environment:
+      POSTGRES_USER: ${DB_USER:-finsense_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-finsense_password}
+      POSTGRES_DB: ${DB_NAME:-finsense_db}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-finsense_user} -d ${DB_NAME:-finsense}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - finsense_network
+
+  api:
+    build:
+      context: .
+      dockerfile: FinSenseAPI/Dockerfile
+      target: final
+    container_name: finsense-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      ASPNETCORE_URLS: http://+:8080
+      ASPNETCORE_HTTPS_PORT: 8081
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=${DB_NAME:-finsense_db};Username=${DB_USER:-finsense_user};Password=${DB_PASSWORD:-finsense_password};SSL Mode=Disable;Pooling=true;Maximum Pool Size=20;"
+      Claude__ApiKey: ${CLAUDE_API_KEY}
+      Claude__Model: ${CLAUDE_MODEL:-llama-3.3-70b-versatile}
+      Claude__MaxRetries: ${CLAUDE_MAX_RETRIES:-2}
+      Claude__TimeoutSeconds: ${CLAUDE_TIMEOUT:-30}
+      Jwt__Secret: ${JWT_SECRET}
+      Jwt__Issuer: ${JWT_ISSUER:-FinSenseAPI}
+      Jwt__Audience: ${JWT_AUDIENCE:-FinSenseClient}
+      Jwt__ExpiryDays: ${JWT_EXPIRY_DAYS:-7}
+      Jwt__RefreshTokenExpiryDays: ${JWT_REFRESH_TOKEN_EXPIRY_DAYS:-30}
+      RateLimit__MaxRequestsPerMinute: ${RATE_LIMIT_REQUESTS:-20}
+      RateLimit__MaxClaudeCallsPerMinute: ${RATE_LIMIT_CLAUDE:-5}
+      AllowedOrigins__0: ${ALLOWED_ORIGINS:-http://localhost:3000}
+    ports:
+      - "${API_PORT:-8080}:8080"
+      - "${API_HTTPS_PORT:-8081}:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - finsense_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  finsense_network:
+    driver: bridge
