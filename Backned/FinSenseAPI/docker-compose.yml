@@ -32,8 +32,7 @@ services:
       ASPNETCORE_URLS: http://+:8080
       ASPNETCORE_HTTPS_PORT: 8081
       ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=${DB_NAME:-finsense_db};Username=${DB_USER:-finsense_user};Password=${DB_PASSWORD:-finsense_password};SSL Mode=Disable;Pooling=true;Maximum Pool Size=20;"
-      Claude__ApiKeys__0: ${CLAUDE_API_KEY}
-      Claude__ApiKeys__1: ${CLAUDE_API_KEY_2:-}
+      Claude__ApiKey: ${CLAUDE_API_KEY}
       Claude__Model: ${CLAUDE_MODEL:-llama-3.3-70b-versatile}
       Claude__MaxRetries: ${CLAUDE_MAX_RETRIES:-2}
       Claude__TimeoutSeconds: ${CLAUDE_TIMEOUT:-30}
