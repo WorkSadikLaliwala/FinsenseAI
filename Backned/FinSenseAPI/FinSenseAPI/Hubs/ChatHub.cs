@@ -39,12 +39,13 @@ public class ChatHub : Hub
         var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(Context.ConnectionAborted);
         _activeStreams[Context.ConnectionId] = linkedCts;
         var ct = linkedCts.Token;
-
+        _logger.LogInformation("[ChatHub] >>> SendMessage ENTERED for session {SessionId}", sessionId);
         // fetch transactions for context (best-effort)
         var transactions = Enumerable.Empty<dynamic>();
         try
         {
             _logger.LogInformation("[ChatHub] Fetching transactions for context...");
+            _logger.LogInformation("[ChatHub] About to fetch transactions, pool stats"); // or check pool count if exposed
             var fetched = await _transactionRepo.GetBySessionIdAsync(sessionId, ct);
             if (fetched != null)
             {
@@ -87,7 +88,14 @@ public class ChatHub : Hub
             };
 
             _logger.LogInformation("[ChatHub] Saving message to database...");
-            _ = _chatRepo.SaveMessageAsync(chatMsg, ct);
+            try
+            {
+                await _chatRepo.SaveMessageAsync(chatMsg, ct);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[ChatHub] Failed to save chat message — continuing anyway");
+            }
         }
         catch (OperationCanceledException)
         {

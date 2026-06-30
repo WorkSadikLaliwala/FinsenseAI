@@ -58,9 +58,11 @@ export function useSignalR({
 
         // Error from hub
         conn.on('ReceiveError', (error: string) => {
-          if (!active) return
-          console.error('[SignalR] ReceiveError from Hub:', error)
           setIsStreaming(false)
+          streamingMessageId.current = null
+          setMessages(prev => prev.map(msg =>
+            msg.id === streamingMessageId.current ? { ...msg, content: `⚠️ ${error}` } : msg
+          ))
         })
 
       } catch (err) {
